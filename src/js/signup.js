@@ -1,12 +1,12 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, RecaptchaVerifier, signInWithPopup, createUserWithEmailAndPassword, sendEmailVerification, signInWithPhoneNumber, GithubAuthProvider, onAuthStateChanged } from 'firebase/auth';
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
+import { getAuth, GoogleAuthProvider, RecaptchaVerifier, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, signInWithPhoneNumber, GithubAuthProvider } from 'firebase/auth';
 import intlTelInput from 'intl-tel-input';
+import '../css/signup.css';
 
 // Set up phone input
 const phoneInput = document.getElementById('phone-input');
 const phone = intlTelInput(phoneInput, {
-  utilsScript: 'js/utils.js'
+  utilsScript: 'utils.js'
 });
 
 // Prevent long-polling infinite loop
@@ -23,16 +23,6 @@ const app = initializeApp({
 
 const auth = getAuth();
 
-onAuthStateChanged(auth, (user) => {
-  console.log(user);
-});
-
-// Initialize App Check
-initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider('6LfGT-IiAAAAAIrtM1clavC8RViMWKuvHrAClt7m'),
-  isTokenAutoRefreshEnabled: true
-});
-
 // Initialize Verifier
 window.verifier = new RecaptchaVerifier('send-sms-code', {
   size: 'invisible'
@@ -46,6 +36,11 @@ const emailInput = document.getElementById('email-input');
 const passwordInput = document.getElementById('password-input');
 document.getElementById('sign-up-with-email').addEventListener('click', () => EmailSignUp(emailInput.value, passwordInput.value));
 
+document.getElementById('email-verify').addEventListener('click', () => {
+  console.log('clicked');
+  SendEmailVerificationAgain(emailInput.value, passwordInput.value);
+});
+
 document.getElementById('send-sms-code').addEventListener('click', () => {
   const phone_number = phone.getNumber();
   PhoneSignUp(phone_number);
@@ -56,38 +51,59 @@ document.getElementById('confirm-sms-code').addEventListener('click', () => {
   ConfirmCode(codeInput.value);
 });
 
+const client_console = document.getElementById('client-console');
+function clientError(message) {
+  console.log(message);
+  client_console.innerText = message;
+}
+
 function GoogleSignUp() {
   signInWithPopup(auth, new GoogleAuthProvider)
   .then((result) => {
     const user = result.user;
-    console.log(user);
-  }).catch((error) => console.log(error));
+    window.open('complete-profile?username=' + user.displayName, '_self');
+  }).catch((error) => clientError(error));
 }
 
 function GithubSignUp() {
   signInWithPopup(auth, new GithubAuthProvider)
-  .then((result) => {
-    const user = result.user;
-    console.log(user);
+  .then(() => {
+    window.open('complete-profile', '_self');
   })
-  .catch((error) => console.log(error));
+  .catch((error) => clientError(error));
 }
 
 function EmailSignUp(email, password) {
   createUserWithEmailAndPassword(auth, email, password)
   .then((result) => {
     const user = result.user;
-    console.log(user);
     sendEmailVerification(user, {
-      url: window.location.origin + '/completeProfile?username=' + email
+      url: window.location.origin + '/complete-profile?username=' + email
     })
-    .then(() => console.log('success!'));
-  }).catch((error) => {
+    .then(() => {
+      clientError('email send success! check spam folder');
+    });
+  })
+  .catch((error) => {
     if(error.code === 'auth/email-already-in-use') {
-      console.log('This email already exists, perhaps login?')
-      return;
+      return clientError('This email already exists.');
     }
-    console.log(error);
+    clientError(error);
+  });
+}
+
+function SendEmailVerificationAgain(email, password) {
+  signInWithEmailAndPassword(auth, email, password)
+  .then((result) => {
+    const user = result.user;
+    if(user.emailVerified) return;
+    sendEmailVerification(user, {
+      url: window.location.origin + '/complete-profile?username=' + email
+    })
+    .catch((error) => clientError(error));
+  })
+  .catch((error) => {
+    clientError(error);
   });
 }
 
@@ -95,20 +111,18 @@ function PhoneSignUp(number) {
   window.verifier.verify();
   signInWithPhoneNumber(auth, number, window.verifier)
   .then((code) => {
-    console.log("Message sent successfully. " + code);
+    clientError('Message sent successfully.');
     window.confirmationCode = code;
   })
   .catch((error) => console.log(error));
 }
 
 function ConfirmCode(code) {
-  window.confirmationCode.confirm(code)
-  .then((result) => {
-    const user = result.user;
-    console.log('success!');
-    console.log(user);
+  window.confirmationCode?.confirm(code)
+  .then(() => {
+    window.open('complete-profile?username=Anonymous', '_self');
   })
   .catch((error) => {
-    console.log(error);
+    clientError(error);
   });
 }

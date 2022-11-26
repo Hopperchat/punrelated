@@ -1,0 +1,181 @@
+:root {
+  --font-system: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-body: 400 min(17px, 5.4vmin) / 1.75 var(--font-default);
+  --transition-default: all .3s ease-in-out;
+  --padded-width: min(300px, calc(100vw - 30px));
+}
+html {
+  overflow: hidden;
+}
+body  {
+  margin: 0;
+  font: 400 16px / 1.75 var(--font-system);
+  height: 100vh;
+  max-height: -webkit-fill-available;
+  overflow: hidden auto;
+  background: #fff;
+}
+.fixed-header {
+  position: fixed;
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  padding-inline: 40px;
+  background: #fff;
+}
+.form-error {
+  width: 100%;
+  color: #F44336;
+  margin-top: -25px;
+  font-size: 14px;
+}
+h1 {
+  font-size: 18px;
+  color: #bbb;
+}
+.section-default {
+  width: var(--padded-width);
+  margin: auto;
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  height: inherit;
+  row-gap: 25px;
+}
+.section-default h2 {
+  font-size: 30px;
+  margin: 0;
+}
+.canvas-container {
+  position: relative;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-block: 30px;
+}
+#file-output {
+  background-color: #02b37e;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='128' width='128' viewBox='-7 -6 60 60'%3E%3Cpath fill='%23fff' d='M29.45 6v3H9v30h30V18.6h3V39q0 1.2-.9 2.1-.9.9-2.1.9H9q-1.2 0-2.1-.9Q6 40.2 6 39V9q0-1.2.9-2.1Q7.8 6 9 6ZM38 6v4.05h4.05v3H38v4.05h-3v-4.05h-4.05v-3H35V6ZM12 33.9h24l-7.2-9.6-6.35 8.35-4.7-6.2ZM9 9v30V9Z'/%3E%3C/svg%3E");
+}
+#bottle {
+  position: absolute;
+  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+#liquid {
+  transform: translateY(130px);
+  transition: transform .1s ease-in-out;
+}
+#wave {
+  animation: wave .4s infinite linear;
+}
+.primary-button {
+  border: 0;
+  box-shadow: 0 1px 2px #0004;
+  background: #4052ef;
+  color: #fff;
+  font: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 15px;
+  border-radius: 5px;
+  height: 44px;
+  width: 100%;
+  transition: var(--transition-default);
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+.primary-button:disabled {
+  opacity: .6;
+  box-shadow: 0;
+  cursor: not-allowed;
+}
+.primary-button:hover:not(:disabled) {
+  filter: brightness(95%);
+}
+.primary-button#complete-profile {
+  background: #F44336;
+}
+.input-group {
+  position: relative;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+}
+.material-input {
+  border: 1px solid #000;
+  border-radius: 30px;
+  height: 46px;
+  width: var(--padded-width);
+  padding: 0 20px;
+  box-sizing: border-box;
+  outline: 0;
+  font-size: 16px;
+}
+label {
+  position: absolute;
+  justify-self: start;
+  margin-left: 20px;
+  transition: transform .2s ease-in-out;
+  pointer-events: none;
+  background: #fff;
+  height: 4px;
+  display: inline-block;
+  line-height: 1px;
+  padding-inline: 2px;
+}
+.material-input:focus + label,
+.material-input:hover + label,
+.material-input:valid + label {
+  transform: translateY(-23px);
+}
+.material-input:valid {
+  border-color: #0ed0c6;
+  border-width: 2px;
+}
+.material-input.error {
+  border-color: #e42c2c;
+}
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes wave {
+  0% {
+    transform: translateX(-150px);
+  }
+  100% {
+    transform: translateX(0px);
+  }
+}
+@keyframes slide-out {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-60px);
+    opacity: 0;
+  }
+}
+@keyframes slide-in {
+  0% {
+    transform: translateX(60px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
